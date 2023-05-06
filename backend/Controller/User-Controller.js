@@ -105,7 +105,7 @@ const userLogin = async (req, res, next) => {
             const payload = {
                 userId: user.userId
             }
-            const token = jwt.sign(payload, JWT_SECRET);
+            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10s' });
             return res.status(200).json({ message: "User Logged In", data: token })
         }
         else {
@@ -115,11 +115,20 @@ const userLogin = async (req, res, next) => {
 }
 //Login User Function end:
 
+//Logout user function start:
+
+const logoutUser = async (req, res, next) => {
+    const User = req.user;
+}
+
+//Logout user function end:
+
 
 
 
 module.exports = {
     registerUser,
     getAllUsers,
-    userLogin
+    userLogin,
+    logoutUser
 }
