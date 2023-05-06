@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../Models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Token = require('../Models/Token');
 const JWT_SECRET = '90ece9d7534d8ed3c573679ffde8f97b17ef15faf153a8f3ec15bc8e3781797af4ad46570f8a0035a43b43bcff47885bb7dffb39a3ae313e78988c79da3528b7';
 
 //Controller Functions:
@@ -105,8 +106,31 @@ const userLogin = async (req, res, next) => {
             const payload = {
                 userId: user.userId
             }
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10s' });
-            return res.status(200).json({ message: "User Logged In", data: token })
+            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+            const decodedToken = jwt.decode(token);
+            console.log(decodedToken);
+
+
+            let tokenDetails;
+            try {
+                tokenDetails = await Token.create({
+                    tokenNumber: token,
+                    tokenUserId: decodedToken.userId,
+                    tokenIssuedAt: decodedToken.iat,
+                    tokenExpiresAt: decodedToken.exp
+
+                });
+            }
+            catch (error) {
+                console.log(error);
+            }
+
+            if (!tokenDetails) {
+                return res.status(403).json({ message: "Unable to store token details" });
+            }
+            else {
+                return res.status(200).json({ message: "User Logged In", token: token, storedToken: tokenDetails })
+            }
         }
         else {
             return res.status(403).json({ message: "Incorrect credentials" });
@@ -118,7 +142,42 @@ const userLogin = async (req, res, next) => {
 //Logout user function start:
 
 const logoutUser = async (req, res, next) => {
-    const User = req.user;
+    const userId = req.user.dataValues.userId;
+    let loggedInUser;
+    try {
+        loggedInUser = await Token.findOne({
+            where: {
+                tokenUserId: userId
+            }
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
+
+    if (!loggedInUser) {
+        return res.status(404).json({ message: "No user found with token" });
+    }
+
+    let deleteToken;
+    try {
+        deleteToken = await Token.destroy({
+            where: {
+                tokenUserId: userId
+            }
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
+
+    if (!deleteToken) {
+        return res.status(403).json({ message: "Unable to delete the token" });
+    }
+    else {
+        return res.status(200).json({ message: "Token deleted sucessfully" });
+    }
+
 }
 
 //Logout user function end:

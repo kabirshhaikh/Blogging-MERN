@@ -6,6 +6,7 @@ const cors = require('cors');
 const sequelize = require('./Util/database');
 const User = require('./Models/User');
 const Blog = require('./Models/Blog');
+const Token = require('./Models/Token');
 
 
 app.use(bodyParser.json());
