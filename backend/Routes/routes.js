@@ -8,7 +8,7 @@ const jwtAuthenticationMiddleWear = require('../Middlewear/jwt-token');
 router.post('/register-user', userController.registerUser);
 router.get('/get-all-users', jwtAuthenticationMiddleWear, userController.getAllUsers);
 router.post('/login', userController.userLogin);
-router.post('logout', jwtAuthenticationMiddleWear, userController.logoutUser);
+router.post('/logout', jwtAuthenticationMiddleWear, userController.logoutUser);
 
 //Blog Routes:
 router.post('/add-blog', jwtAuthenticationMiddleWear, blogController.addBlog);
