@@ -3,6 +3,7 @@ const User = require('../Models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Token = require('../Models/Token');
+const cookieParser = require('cookie-parser');
 const JWT_SECRET = '90ece9d7534d8ed3c573679ffde8f97b17ef15faf153a8f3ec15bc8e3781797af4ad46570f8a0035a43b43bcff47885bb7dffb39a3ae313e78988c79da3528b7';
 
 //Controller Functions:
@@ -129,6 +130,9 @@ const userLogin = async (req, res, next) => {
                 return res.status(403).json({ message: "Unable to store token details" });
             }
             else {
+                res.cookie('token', token, {
+                    httpOnly: true
+                });
                 return res.status(200).json({ message: "User Logged In", token: token, storedToken: tokenDetails })
             }
         }
